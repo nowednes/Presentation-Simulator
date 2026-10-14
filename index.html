@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- BUILD: production -->
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">
 <title>발표 시뮬레이션</title>
@@ -15,7 +16,6 @@ html,body{height:100%;margin:0;overflow:hidden;font-family:var(--f-body);font-we
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 .g{display:none}body.play .g{display:block}
 #timer{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 10px);font-size:clamp(30px,6vw,56px);color:#fff;text-shadow:0 2px 0 #0006;background:#0006;border-radius:14px;padding:0 16px;min-width:2.2ch;text-align:center}
-#cut{position:fixed;right:68px;top:calc(env(safe-area-inset-top,0px) + 10px);font-size:15px;font-weight:400;font-family:inherit;height:44px;padding:0 14px;border:2px dashed #fff;background:#0007;color:#fff;border-radius:10px;cursor:pointer}
 #scr{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + clamp(56px,9vw,84px));width:min(92vw,900px);box-sizing:border-box;background:var(--panel);border-radius:14px;padding:6px 18px;overflow:hidden;box-shadow:0 6px 0 #0003;font-family:var(--f-script);font-weight:400;font-size:clamp(15px,2.6vw,26px);line-height:1.65;height:60px}
 #scrIn{position:relative;transition:transform .3s}
 .line{white-space:pre-wrap;word-break:keep-all}
@@ -35,7 +35,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 .note{grid-column:1/-1;text-align:right;font-size:.6em;opacity:.8;margin-top:-6px}
 #rst{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);width:44px;height:44px;padding:0;border:2px solid #fff;background:#0007;color:#fff;border-radius:10px;cursor:pointer}
 #rst svg{display:block;margin:auto}
-#rst:focus-visible,#cut:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#rst:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 #grade{font-family:var(--f-title);font-size:clamp(70px,16vw,140px);font-weight:400;color:var(--accent);line-height:1}
 .sb{position:fixed;left:0;top:0;pointer-events:none;background:#fffaf0;color:#2b2b2b;font-family:var(--f-body);font-weight:400;font-size:20px;line-height:24px;padding:4px 12px;border-radius:12px;box-shadow:0 3px 0 #0003;white-space:nowrap;opacity:0;transform-origin:50% 100%;transform:translate(-50%,-100%) translateY(6px) scale(.92);transition:opacity .25s,transform .25s}
 .sb.in{opacity:1;transform:translate(-50%,-100%)}
@@ -49,7 +49,6 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 #stage{touch-action:none}
 #timer{font-size:clamp(22px,4.5vw,34px);padding:0 10px;border-radius:10px}
-#cut{font-size:12px;height:36px;padding:0 10px;right:56px}
 #rst{width:36px;height:36px;right:10px}#rst svg{width:20px;height:20px}
 #scr{font-size:15px;padding:6px 12px;top:calc(env(safe-area-inset-top,0px) + 50px)}
 #scrIn{z-index:1}
@@ -69,7 +68,6 @@ html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:
 </style></head><body>
 <div id="stage"><canvas id="cv"></canvas>
 <div id="timer" class="g">120</div>
-<button id="cut" class="g">-10초</button>
 <button id="rst" class="g" title="다시하기" aria-label="다시하기: 발표를 중단하고 처음 화면으로 돌아가기"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
 <div id="scr" class="g"><div id="scrIn"></div></div>
 <div id="bubble"></div><div id="hint"></div>
@@ -79,6 +77,8 @@ html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+(function(){
+
 const LIMIT=120,$=id=>document.getElementById(id);
 const S=["여러분, 안녕하세요. 오늘 제가 말씀드릴 주제는 시각 디자인의 힘입니다.", "시각 디자인은 단순히 눈을 즐겁게 하는 것을 넘어, 복잡한 정보를 한눈에 이해하기 쉽게 가공하고 사람의 감정을 움직이는 소통의 기술입니다.", "잘 만들어진 포스터 한 장이 백 마디 말보다 더 강력한 메시지를 전달하고, 직관적인 앱 UI 디자인이 사용자의 행동을 변화시킵니다.", "이처럼 시각 디자인은 텍스트에 생명을 불어넣고 세상과 사람을 연결하는 보이지 않는 언어와 같습니다.", "오늘 하루는 길거리의 표지판이나 패키지 속에서 디자이너들이 숨겨놓은 메시지를 한번 찾아보시는 건 어떨까요?", "감사합니다."];
 const LINES=S.map((s,i)=>i<S.length-1?s+' ':s),TARGET=LINES.join('');
@@ -87,8 +87,8 @@ const lineOf=p=>{let L=0;lineStart.forEach((s,i)=>{if(p>=s)L=i});return L};
 
 
 /* ---------- 점수 / 결과 데이터 (랭킹 연동 지점) ---------- */
-const calcScore=(t,n)=>{const ts=t>=100?90+(t-100)*.5:90*t/100;return Math.max(0,Math.min(100,ts-n*1.5))};
-const gradeOf=s=>s>=90?'A+':s>=80?'A0':s>=70?'B+':s>=60?'B0':'C+';
+const calcScore=(t,n)=>{const ts=t>=90?100:Math.min(93.9,100*t/90); /* 분량 미달(90초 미만)은 A+ 불가 */return Math.max(0,Math.min(100,ts-n*2))};
+const gradeOf=s=>s>=94?'A+':s>=85?'A0':s>=75?'B+':s>=60?'B0':'C+';
 const Ranking={list:[],submit(r){this.list.push(r)}}; // TODO: 서버 연동 시 여기만 교체
 
 /* ---------- 3D 장면 ---------- */
@@ -177,7 +177,7 @@ function pose(ch,k,now){const s0=ch.hs||1,s=s0+(2.2-s0)*k;ch.g.scale.setScalar(s
 
 /* ---------- 상태 ---------- */
 const G={},el=$('typing');let composing=false,actx,alarmGain;
-function resetState(){Object.assign(G,{com:'',playing:false,frozen:false,pos:0,typos:0,cut:0,t0:0,said:{},ev:null,spans:[],lineEls:[],curEl:null,last:{}})}
+function resetState(){Object.assign(G,{com:'',playing:false,frozen:false,pos:0,typos:0,t0:0,said:{},ev:null,spans:[],lineEls:[],curEl:null,last:{}})}
 function buildScript(){const inn=$('scrIn');inn.innerHTML='';G.spans=[];G.lineEls=[];
  LINES.forEach(l=>{const d=document.createElement('div');d.className='line';[...l].forEach(ch=>{const s=document.createElement('span');s.textContent=ch;s.className='p';d.appendChild(s);G.spans.push(s)});inn.appendChild(d);G.lineEls.push(d)});layout()}
 function layout(){const L=lineOf(G.pos),a=G.lineEls[L],b=G.lineEls[Math.min(L+1,LINES.length-1)];
@@ -228,7 +228,7 @@ function startGame(){resetState();buildScript();el.value='';el.readOnly=false;
 function toStart(){if(alarmGain)alarmGain.gain.value=0;clearTimeout(say.t);G.playing=false;sbReset();behReset();if(G.ev)endEvent();el.blur();resetState();el.value='';el.readOnly=false;composing=false;
  $('hint').style.display='none';$('bubble').style.display='none';$('timer').textContent=LIMIT;
  document.body.classList.remove('play');$('result').classList.remove('on');$('start').classList.add('on');buildScript()}
-function remaining(now){return LIMIT-(now-G.t0)/1000-G.cut}
+function remaining(now){return LIMIT-(now-G.t0)/1000}
 function finish(){if(!G.playing)return;const now=performance.now();G.playing=false;if(G.ev)endEvent();el.blur();
  const time=Math.min(LIMIT,Math.max(0,Math.round(LIMIT-remaining(now)))),score=calcScore(time,G.typos);
  const r={success:true,time,typos:G.typos,score:Math.round(score*10)/10,grade:gradeOf(score)};Ranking.submit(r);
@@ -242,8 +242,8 @@ function alarm(){try{actx=actx||new AudioContext();actx.resume();alarmGain=actx.
 
 $('go').onclick=startGame;
 $('rst').addEventListener('mousedown',e=>e.preventDefault());$('rst').onclick=toStart;
-$('cut').addEventListener('mousedown',e=>e.preventDefault());
-$('cut').onclick=()=>{if(G.playing){G.cut+=10;if(!G.frozen)el.focus({preventScroll:true})}};
+
+
 
 /* ---------- 관객 말풍선 (연출 전용, 점수·타이머·판정과 무관) ---------- */
 const SBTX=["안 들려요","피피티 밤티;","졸리다...","이 사람보단 점수 잘 받겠지","...(빤히 쳐다본다)","소곤소곤...","ㅋㅋㅋ","별론데?","아닌 거 같은데...","이 사람 드랍할 건가?","대학생 맞음?","야 우냐?"],SBSTARE=4,
@@ -334,5 +334,7 @@ if(navigator.virtualKeyboard)navigator.virtualKeyboard.addEventListener('geometr
 let kbRaf=0;el.addEventListener('focus',()=>{kbMetrics();if(MOB()&&!kbRaf){kbRaf=1;const t0=performance.now();(function l(){kbMetrics();if(document.activeElement===el&&performance.now()-t0<1500)requestAnimationFrame(l);else kbRaf=0})()}}); /* 키패드가 올라오는 동안 위치 추적 */el.addEventListener('blur',()=>{if(G.rs)return;vkH=0;kbMetrics();setTimeout(onResize,300)});
 resize();kbMetrics();
 document.fonts&&document.fonts.addEventListener('loadingdone',()=>layout());
-window.__game={G,SB,TARGET,calcScore,Ranking};
+
+
+})();
 </script></body></html>
