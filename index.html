@@ -215,6 +215,9 @@ function settle(n){G.stp=0;if(n!==el||G.frozen||G.rs||!G.playing)return;const v=
  if(okEdit(v)&&v.slice(0,G.pos)===G.com){G.val=v;return}
  if(MOB())renewInput(G.val);else{n.value=G.val;try{n.setSelectionRange(G.val.length,G.val.length)}catch(_){}}}
 const sched=n=>{if(!G.stp)G.stp=setTimeout(()=>settle(n),50)};
+/* 문장 전환: 각 문장 끝의 공백(스페이스) 위치에서만 가능. Enter는 그 공백을 입력한 것과 같은 경로(judge)로 처리 */
+const sentEnd=()=>{const L=lineOf(G.pos);return L<LINES.length-1&&G.pos===lineStart[L+1]-1};
+function enterNext(n){const v=n.value+' ';n.value=v;try{n.setSelectionRange(v.length,v.length)}catch(_){}G.val=v;sched(n);judge(false)}
 function renewInput(val,focus=true){const old=el,n=old.cloneNode(false);clearTimeout(G.stp);G.stp=0;G.rs=true;G.val=val;n.value=val;el=n;bindInput(n);old.replaceWith(n);
  if(focus){try{n.focus({preventScroll:true});n.setSelectionRange(val.length,val.length)}catch(_){}}
  composing=false;G.gen=(G.gen||0)+1;G.rs=false}
@@ -225,6 +228,7 @@ function bindInput(n){const own=f=>e=>{if(n!==el||G.rs)return;f(e)},stay=()=>{tr
   if(G.frozen){if(MOB()&&(n.value!==G.com||composing))renewInput(G.com);return} /* 잠금 중: 게임 상태에 반영하지 않고 입력 흔적만 제거 */
   sched(n);judge(false)}));
  n.addEventListener('keydown',own(e=>{if(G.frozen&&MOB()){e.preventDefault();return}
+  if(e.key==='Enter'||e.keyCode===13){if(e.isComposing||composing)return;e.preventDefault();if(G.playing&&!G.frozen&&sentEnd()&&n.value===G.com)enterNext(n);return} /* Enter: 문장을 끝까지 입력한 상태에서만 전환, 그 외에는 아무 변화·판정 없음 */
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key))e.preventDefault();
   const del=e.key==='Backspace'||e.key==='Delete'||e.keyCode===8||e.keyCode===46;if(G.playing&&del){G.bsAt=performance.now();if(!e.isComposing&&!composing){e.preventDefault();return}}})); /* 사용자의 삭제 의도는 keydown으로만 판별 */
  n.addEventListener('beforeinput',own(e=>{if(G.frozen&&MOB()){e.preventDefault();return}const t=e.inputType||'',byKey=performance.now()-(G.bsAt||-1e9)<400,selDel=!e.isComposing&&!composing&&n.selectionStart!==n.selectionEnd;if(G.playing&&((t.startsWith('delete')&&t!=='deleteCompositionText'&&(byKey||selDel))||t==='historyUndo'||t==='historyRedo'||t==='insertReplacementText'||t==='insertFromPaste'||t==='insertFromDrop'))e.preventDefault()})); /* IME 내부 편집(키 입력 없이 오는 delete)은 막지 않음 */
@@ -359,3 +363,4 @@ document.fonts&&document.fonts.addEventListener('loadingdone',()=>layout());
 
 })();
 </script></body></html>
+
